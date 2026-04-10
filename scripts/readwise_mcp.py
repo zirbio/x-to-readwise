@@ -35,7 +35,12 @@ def _call_mcp(token: str, tool_name: str, arguments: dict) -> dict:
         },
     }
     conn.request("POST", MCP_PATH, json.dumps(init_req), headers)
-    conn.getresponse().read()
+    init_resp = conn.getresponse()
+    if init_resp.status != 200:
+        body = init_resp.read().decode()
+        conn.close()
+        raise RuntimeError(f"MCP initialize failed (HTTP {init_resp.status}): {body[:300]}")
+    init_resp.read()
 
     # Call tool
     call_req = {
@@ -46,6 +51,10 @@ def _call_mcp(token: str, tool_name: str, arguments: dict) -> dict:
     }
     conn.request("POST", MCP_PATH, json.dumps(call_req), headers)
     resp = conn.getresponse()
+    if resp.status != 200:
+        body = resp.read().decode()
+        conn.close()
+        raise RuntimeError(f"MCP tool call failed (HTTP {resp.status}): {body[:300]}")
     body = resp.read().decode()
     conn.close()
 
