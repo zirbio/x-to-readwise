@@ -118,12 +118,21 @@ Compose an HTML email. CRITICAL: ALL styles must be inline. Gmail strips `<style
 
 ### Send the email
 
-Use the Gmail MCP tool to send:
-- **To:** requenasilvio@gmail.com
-- **Subject:** X Feed Curado — {d} {Mon} {YYYY} {AM|PM}  (e.g., "X Feed Curado — 10 Apr 2026 AM")
-- **Body:** The complete HTML above (as HTML email, not plain text)
+Save the HTML to `/tmp/digest_email.html`, then send via Resend API:
 
-If Gmail MCP is not available, save the HTML to `/tmp/digest_email.html` and output: "Gmail MCP not available. HTML saved to /tmp/digest_email.html"
+```bash
+curl -s -X POST 'https://api.resend.com/emails' \
+  -H 'Authorization: Bearer RESEND_API_KEY_PLACEHOLDER' \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"from\": \"RESEND_FROM_PLACEHOLDER\",
+    \"to\": [\"requenasilvio@gmail.com\"],
+    \"subject\": \"X Feed Curado — {d} {Mon} {YYYY} {AM|PM}\",
+    \"html\": $(python3 -c \"import json; print(json.dumps(open('/tmp/digest_email.html').read()))\")
+  }"
+```
+
+Verify the response contains `"id"` — that confirms delivery. If it contains `"error"`, output the error message.
 
 ## Error handling
 
@@ -131,4 +140,4 @@ If Gmail MCP is not available, save the HTML to `/tmp/digest_email.html` and out
 - If no document matches "Mi Feed Completo" → STOP, output "No digest found in feed"
 - If digest is stale (wrong date/edition) → STOP, output "No fresh digest available for this edition. Skipping."
 - If curation produces fewer than 5 tweets → send anyway (thin digest is better than none)
-- If email sending fails → save HTML to `/tmp/digest_email.html` and output the error
+- If Resend API returns an error → output the error and the HTML path `/tmp/digest_email.html`
