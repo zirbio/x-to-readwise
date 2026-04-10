@@ -83,18 +83,29 @@ In Claude Code, run:
 
 Or say "cura mi feed" to trigger the curation pipeline.
 
+### Automated option: Scheduled agent
+
+Instead of running `/x-feed-curado` manually, a scheduled agent curates automatically and emails you the result twice daily (7:00 AM / 7:00 PM):
+
+1. Set up Resend (API key + verified domain)
+2. Deploy the scheduled agent via `/schedule` — see `prompts/scheduled-curation-agent.md`
+3. Manage at https://claude.ai/code/scheduled
+
 ## Project structure
 
 ```
 x-to-readwise/
+├── prompts/
+│   └── scheduled-curation-agent.md  # Prompt for the scheduled cloud agent
 ├── scripts/
-│   ├── extract-following.js      # Extract following list from X profile
-│   └── batch-add-to-list.js      # Batch add users to a Twitter List
+│   ├── extract-following.js         # Extract following list from X profile
+│   ├── batch-add-to-list.js         # Batch add users to a Twitter List
+│   └── readwise_mcp.py             # Readwise MCP client for remote use
 ├── skills/
 │   └── x-feed-curado/
-│       └── SKILL.md              # Claude Code skill for AI curation
-├── CLAUDE.md                     # Project instructions for Claude Code
-├── LICENSE                       # MIT
+│       └── SKILL.md                 # Claude Code skill for manual curation
+├── CLAUDE.md                        # Project instructions for Claude Code
+├── LICENSE                          # MIT
 └── README.md
 ```
 
